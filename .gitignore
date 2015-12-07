@@ -1,0 +1,7 @@
+# ignore a bunch of stuff
+*.txt
+venv/
+env/
+*.pyc
+*.csv
+*.log
