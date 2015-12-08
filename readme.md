@@ -6,7 +6,7 @@
 
 1. Clone this repo and `cd` in.
 2. `$ virtualenv env`
-3. `$ cd env`
+3. `$ source env/bin/activate`
 4. `$ pip install tweepy`
 
 ## Usage
