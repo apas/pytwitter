@@ -20,8 +20,7 @@ def limit_handled(cursor):
 
 def deleteall():
   for idx, tweet in enumerate(limit_handled(
-    tweepy.Cursor(api.user_timeline, max_id=604781336348499969).
-    items(3200))):
+    tweepy.Cursor(api.user_timeline).items(3200))):
     print str(idx+1) + " iter"
     print "--- Accessing tweet: " + tweet.text
     print "--- Date posted: " + str(tweet.created_at)
