@@ -13,8 +13,8 @@
 
 1. [Generate][access] an access token to access your own account.
 2. Enter the corresponding tokens in `config.py`
-3. `$ python pytwitter.py [-h] [-r | -a timeframe timeframe]`  
-(assuming you're still inside the `env`)
+3. `$ python pytwitter.py [-h] [-r | -a username timeframe timeframe]`  
+(assuming you're still inside the `env` and timeframe is in YYYY-MM-DD format)
 
 [tw]: https://github.com/tweepy/tweepy
 [access]: https://apps.twitter.com/app/new
