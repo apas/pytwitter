@@ -1,4 +1,5 @@
-import tweepy, argparse, config
+import tweepy, argparse, config, subprocess, time, datetime, csv
+from datetime import date
 
 oauthkey = config.oauthkey
 oauthsec = config.oauthsec
@@ -31,11 +32,61 @@ def deleteall():
     except Exception as e:
       print "Tweet with id %s failed with %s" % (tweet.id_str, e)
 
+def timeframe(date):
+  username = date[0]
+  s_date = date[1]
+  e_date = date[2]
+  u = "username="+username
+  delta = datetime.timedelta(days=30)
+
+  start_date = datetime.datetime.strptime(s_date, "%Y-%m-%d").date()
+  end_date = datetime.datetime.strptime(e_date, "%Y-%m-%d").date()
+
+  d = start_date
+  cnt = 1
+  while d <= end_date:
+    since = d.strftime("%Y-%m-%d")
+    d += delta
+    until = d
+    cmdsince = "since="+str(since)
+    cmduntil = "until="+str(until)
+    csv = subprocess.call(["java", "-jar", "got/got.jar",
+     u, cmdsince, cmduntil])
+    newname = "output_got-%s.csv" % str(cnt)
+    rename = subprocess.call(["mv", "output_got.csv", newname])
+    cnt += 1
+    print since
+    print until
+    print "# END ITER"
+
+  merge = subprocess.call(["./merge.sh"])
+  purge = subprocess.call(["rm", "output_got-*"])
+  print "All CSVs merged."
+
+  idlist = []
+  with open("merged.csv", "rb") as f:
+    reader = csv.reader(f, delimiter=";", quotechar='"')
+    for row in reader:
+      try:
+        idlist.append(row[8])
+      except Exception:
+        pass
+
+  for idx, status in enumerate(idlist):
+    print str(idx+1) + " iter"
+    print "--- Accessing tweet: " + str(status)
+    try:
+      api.destroy_status(int(status))
+      print "Deleted tweet."
+    except Exception as e:
+      print "Tweet with id %s failed with %s" % (status, e)
+
 def main():
   parser = argparse.ArgumentParser(prog="pytwitter",
     description="""delete all your tweets, ever.
-    use -r if you'veposted less than 3,200 tweets.
-    otherwise specify exact dates with -a.""",
+    use -r if you've posted less than 3,200 tweets.
+    otherwise specify your username and the exact
+    dates with -a.""",
     epilog="2015, @apas",
     formatter_class=argparse.RawTextHelpFormatter)
 
@@ -46,21 +97,21 @@ def main():
   group.add_argument("-a",
     action="store",
     help="""delete all tweets within a timeframe:\t
-    enter timeframe in format YYYY-MM-DD.\t
-    the first argument is the older date.\t
-    you want the first date to be the day\t
+    enter timeframe like: username YYYY-MM-DD YYYY-MM-DD.\t
+    the first date argument is the older date.\t
+    (you want the first date to be the day\t
     you created your account and the second,\t
-    the current one.""",
+    the current one.)""",
     dest="timeframe",
     metavar="timeframe",
-    nargs=2)
+    nargs=3)
 
   args = parser.parse_args()
 
   if args.r:
     deleteall()
   elif args.timeframe:
-    print "todo"
+    timeframe(args.timeframe)
   else:
     parser.print_help()
 
