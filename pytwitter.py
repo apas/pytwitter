@@ -50,7 +50,7 @@ def timeframe(date):
     until = d
     cmdsince = "since="+str(since)
     cmduntil = "until="+str(until)
-    csv = subprocess.call(["java", "-jar", "got/got.jar",
+    csv = subprocess.call(["java", "-jar", "got.jar",
      u, cmdsince, cmduntil])
     newname = "output_got-%s.csv" % str(cnt)
     rename = subprocess.call(["mv", "output_got.csv", newname])
