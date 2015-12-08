@@ -1,4 +1,4 @@
-import tweepy, argparse, config, subprocess, time, datetime, csv
+import tweepy, argparse, config, subprocess, time, datetime, csv, glob, os
 from datetime import date
 
 oauthkey = config.oauthkey
@@ -60,7 +60,9 @@ def timeframe(date):
     print "# END ITER"
 
   merge = subprocess.call(["./merge.sh"])
-  purge = subprocess.call(["rm", "output_got-*"])
+  outputcsvs = glob.glob("output_got-*")
+  for cvsfile in outputcsvs:
+    os.remove(cvsfile)
   print "All CSVs merged."
 
   idlist = []
