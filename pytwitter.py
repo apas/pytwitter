@@ -90,7 +90,7 @@ def timeframe(date):
     rm("merged.csv")
   except Exception as e:
     rm("merged.csv")
-    print "Accessing cvs failed (probably because it's empty) with error:\n\t%s" % e
+    print "Accessing csv failed (probably because it's empty) with error:\n\t%s" % e
 
 def main():
   parser = argparse.ArgumentParser(prog="pytwitter",
