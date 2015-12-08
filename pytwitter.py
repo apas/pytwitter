@@ -32,6 +32,11 @@ def deleteall():
     except Exception as e:
       print "Tweet with id %s failed with %s" % (tweet.id_str, e)
 
+def rm(filename):
+  outputcsvs = glob.glob(filename)
+  for cvsfile in outputcsvs:
+    os.remove(cvsfile)
+
 def timeframe(date):
   username = date[0]
   s_date = date[1]
@@ -60,28 +65,32 @@ def timeframe(date):
     print "# END ITER"
 
   merge = subprocess.call(["./merge.sh"])
-  outputcsvs = glob.glob("output_got-*")
-  for cvsfile in outputcsvs:
-    os.remove(cvsfile)
+  rm("output_got-*")
   print "All CSVs merged."
 
   idlist = []
-  with open("merged.csv", "rb") as f:
-    reader = csv.reader(f, delimiter=";", quotechar='"')
-    for row in reader:
-      try:
-        idlist.append(row[8])
-      except Exception:
-        pass
+  try:
+    with open("merged.csv", "rb") as f:
+      reader = csv.reader(f, delimiter=";", quotechar='"')
+      for row in reader:
+        try:
+          idlist.append(row[8])
+        except Exception:
+          pass
 
-  for idx, status in enumerate(idlist):
-    print str(idx+1) + " iter"
-    print "--- Accessing tweet: " + str(status)
-    try:
-      api.destroy_status(int(status))
-      print "Deleted tweet."
-    except Exception as e:
-      print "Tweet with id %s failed with %s" % (status, e)
+    for idx, status in enumerate(idlist):
+      print str(idx+1) + " iter"
+      print "--- Accessing tweet: " + str(status)
+      try:
+        api.destroy_status(int(status))
+        print "Deleted tweet."
+      except Exception as e:
+        print "Tweet with id %s failed with %s" % (status, e)
+
+    rm("merged.csv")
+  except Exception as e:
+    rm("merged.csv")
+    print "Accessing cvs failed (probably because it's empty) with error:\n\t%s" % e
 
 def main():
   parser = argparse.ArgumentParser(prog="pytwitter",
