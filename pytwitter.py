@@ -68,6 +68,7 @@ def timeframe(date):
     print until
     print "# END ITER"
 
+  # eventually check here if merged.csv already exists and, if Y, rm it
   merge = subprocess.call(["./merge.sh"])
   rm("output_got-*")
   print "All CSVs merged."
@@ -77,18 +78,20 @@ def timeframe(date):
     data = csv.reader(f, delimiter=';', quotechar='"')
     for row in data:
       try:
+        if row[4]:
+          row[4] = row[4].replace('"', '')
         if row[8] != "id":
           idlist.append(row[8])
+      except IndexError:
+        pass
       except Exception as e:
         rm("merged.csv")
         raise e
 
   for idx, status in enumerate(idlist):
     try:
-      print str(idx+1) + " iter"
-      print "--- Accessing tweet: " + str(status)
       api.destroy_status(int(status))
-      print "Deleted tweet."
+      print "Deleted tweet: " + status
     except Exception as e:
       rm("merged.csv")
       raise e
