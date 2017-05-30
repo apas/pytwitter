@@ -1,5 +1,10 @@
-import tweepy, argparse, config, subprocess, time, datetime, csv, glob, os
+# encoding=utf8
+import tweepy, argparse, config, subprocess, time, datetime, glob, os, csv
 from datetime import date
+import codecs
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 oauthkey = config.oauthkey
 oauthsec = config.oauthsec
@@ -54,7 +59,7 @@ def timeframe(date):
     until = d
     cmdsince = "since="+str(since)
     cmduntil = "until="+str(until)
-    csv = subprocess.call(["java", "-jar", "got.jar",
+    create_csv = subprocess.call(["java", "-jar", "got.jar",
      u, cmdsince, cmduntil])
     newname = "output_got-%s.csv" % str(cnt)
     rename = subprocess.call(["mv", "output_got.csv", newname])
@@ -68,28 +73,27 @@ def timeframe(date):
   print "All CSVs merged."
 
   idlist = []
-  try:
-    with open("merged.csv", "rb") as f:
-      reader = csv.reader(f, delimiter=";", quotechar='"')
-      for row in reader:
-        try:
+  with codecs.open('merged.csv', 'rb', encoding='utf-8') as f:
+    data = csv.reader(f, delimiter=';', quotechar='"')
+    for row in data:
+      try:
+        if row[8] != "id":
           idlist.append(row[8])
-        except Exception:
-          pass
+      except Exception as e:
+        rm("merged.csv")
+        raise e
 
-    for idx, status in enumerate(idlist):
+  for idx, status in enumerate(idlist):
+    try:
       print str(idx+1) + " iter"
       print "--- Accessing tweet: " + str(status)
-      try:
-        api.destroy_status(int(status))
-        print "Deleted tweet."
-      except Exception as e:
-        print "Tweet with id %s failed with %s" % (status, e)
+      api.destroy_status(int(status))
+      print "Deleted tweet."
+    except Exception as e:
+      rm("merged.csv")
+      raise e
 
     rm("merged.csv")
-  except Exception as e:
-    rm("merged.csv")
-    print "Accessing csv failed (probably because it's empty) with error:\n\t%s" % e
 
 def main():
   parser = argparse.ArgumentParser(prog="pytwitter",
