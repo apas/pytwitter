@@ -46,26 +46,38 @@ def timeframe(date):
   s_date = date[1]
   e_date = date[2]
   u = "username="+username
-  delta = datetime.timedelta(days=30)
 
   start_date = datetime.datetime.strptime(s_date, "%Y-%m-%d").date()
   end_date = datetime.datetime.strptime(e_date, "%Y-%m-%d").date()
 
-  d = start_date
   cnt = 1
-  while d <= end_date:
-    since = d.strftime("%Y-%m-%d")
-    d += delta
-    until = d
-    cmdsince = "since="+str(since)
-    cmduntil = "until="+str(until)
+  thirtydaysinterval = datetime.timedelta(days=30)
+  delta = end_date - start_date
+  temp_start_date = start_date
+
+  while delta.days > 30:
+    temp_until_date = temp_start_date + thirtydaysinterval
+    cmdsince = "since="+str(temp_start_date)
+    cmduntil = "until="+str(temp_until_date)
     create_csv = subprocess.call(["java", "-jar", "got.jar",
      u, cmdsince, cmduntil])
     newname = "output_got-%s.csv" % str(cnt)
     rename = subprocess.call(["mv", "output_got.csv", newname])
+    temp_start_date = temp_until_date
+    delta = end_date - temp_start_date
     cnt += 1
-    print since
-    print until
+    print temp_start_date
+    print temp_until_date
+    print "# END ITER"
+  else:
+    cmdsince = "since="+str(temp_start_date)
+    cmduntil = "until="+str(end_date)
+    create_csv = subprocess.call(["java", "-jar", "got.jar",
+     u, cmdsince, cmduntil])
+    newname = "output_got-%s.csv" % str(cnt)
+    rename = subprocess.call(["mv", "output_got.csv", newname])
+    print temp_start_date
+    print end_date
     print "# END ITER"
 
   # eventually check here if merged.csv already exists and, if Y, rm it
@@ -78,10 +90,9 @@ def timeframe(date):
     data = csv.reader(f, delimiter=';', quotechar='"')
     for row in data:
       try:
-        if row[4]:
-          row[4] = row[4].replace('"', '')
-        if row[8] != "id":
-          idlist.append(row[8])
+        if row[-2] != "id":
+          print row[-2]
+          idlist.append(row[-2])
       except IndexError:
         pass
       except Exception as e:
