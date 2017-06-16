@@ -1,14 +1,15 @@
 #!/bin/bash
 
-OutFileName="merged.csv"                       # Fix the output name
-i=0                                       # Reset a counter
-for filename in ./*.csv; do 
- if [ "$filename"  != "$OutName" ] ;      # Avoid recursion 
- then 
-   if [[ $i -eq 0 ]] ; then 
-      head -1  $filename >>   $OutFileName # Copy header if it is the first file
+fout="merged.csv" # fix output name
+i=0 # reset counter
+
+for filename in ./*.csv; do
+ if [ "$filename" != "$OutName" ]; # avoid recursion
+ then
+   if [[ $i -eq 0 ]]; then
+      head -1 $filename >> $fout # copy header if first file
    fi
-   tail -n +2  $filename >>  $OutFileName # Append from the 2nd line each file
-   i=$(( $i + 1 ))                        # Increase the counter
+   tail -n +2 $filename >> $fout # append from 2nd line each file
+   i=$(( $i + 1 )) # increment counter
  fi
 done
